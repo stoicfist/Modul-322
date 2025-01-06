@@ -3,83 +3,104 @@ package trigonometrie;
 import javax.swing.*;
 import java.awt.*;
 
-class MainView {
-    private JFrame frame;
+public class MainView {
+	private JFrame frame;
 
-    public MainView() {
-        frame = new JFrame("Trigonometrisches Tool");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 400);
-        frame.setLayout(new GridLayout(1, 3)); // Eine Reihe mit drei Spalten
+	public MainView() {
+		frame = new JFrame("Trigonometrie Tool");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(600, 450); // Etwas größere Höhe für Fußzeile
+		frame.setLayout(new BorderLayout());
 
-        // Erstelle Buttons mit Rahmen (statt Füllung)
-        JButton quaderButton = createButton("Quader", Color.RED);
-        JButton kreisButton = createButton("Kreis", Color.BLUE);
-        JButton dreieckButton = createButton("Dreieck", Color.GREEN);
+		// 🔹 ICON OBEN LINKS HINZUFÜGEN
+		ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("trigonometrie/icon.png"));
+		frame.setIconImage(icon.getImage());
 
-        quaderButton.addActionListener(e -> new QuaderView());
-        kreisButton.addActionListener(e -> new KreisView());
-        dreieckButton.addActionListener(e -> new DreieckView());
 
-        frame.add(quaderButton);
-        frame.add(kreisButton);
-        frame.add(dreieckButton);
+		// 🔹 BUTTON PANEL (mit den 3 Buttons)
+		JPanel buttonPanel = new JPanel(new GridLayout(1, 3));
 
-        frame.setVisible(true);
-    }
+		JButton rechtwinkligButton = createButton("Rechtwinkliges Dreieck", Color.RED, new Color(255, 200, 200));
+		JButton gleichschenkligButton = createButton("Gleichschenkliges Dreieck", Color.BLUE, new Color(200, 200, 255));
+		JButton allgemeinesButton = createButton("Allgemeines Dreieck", Color.GREEN, new Color(200, 255, 200));
 
-    private JButton createButton(String label, Color shapeColor) {
-        JButton button = new JButton(label) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2d.setColor(shapeColor);
-                g2d.setStroke(new BasicStroke(3)); // Dickere Linien für den Rahmen
+		rechtwinkligButton.addActionListener(e -> new RechtwinkligesDreieckView());
+		gleichschenkligButton.addActionListener(e -> new GleichschenkligesDreieckView());
+		allgemeinesButton.addActionListener(e -> new AllgemeinesDreieckView());
 
-                int width = getWidth();
-                int height = getHeight();
-                int centerX = width / 2;
-                int centerY = height / 2 + 20; // Platz nach unten für das Symbol
+		buttonPanel.add(rechtwinkligButton);
+		buttonPanel.add(gleichschenkligButton);
+		buttonPanel.add(allgemeinesButton);
 
-                if (label.equals("Quader")) {
-                    drawOutlinedQuader(g2d, centerX, centerY);
-                } else if (label.equals("Kreis")) {
-                    g2d.drawOval(centerX - 20, centerY, 40, 40); // Kreis als Rahmen
-                } else if (label.equals("Dreieck")) {
-                    int[] xPoints = {centerX - 20, centerX + 20, centerX}; // x-Koordinaten
-                    int[] yPoints = {centerY + 40, centerY + 40, centerY}; // y-Koordinaten
-                    g2d.drawPolygon(xPoints, yPoints, 3); // Dreieck als Rahmen
-                }
-            }
-        };
+		// 🔹 FUSSZEILE HINZUFÜGEN
+		JLabel footerLabel = new JLabel("Berechnung von Dreiecken mit Trigonometrie", SwingConstants.CENTER);
+		footerLabel.setFont(new Font("Arial", Font.ITALIC, 12));
+		footerLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
-        button.setOpaque(false);
-        button.setContentAreaFilled(false);
-        button.setBorderPainted(false);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setHorizontalTextPosition(SwingConstants.CENTER);
-        button.setVerticalTextPosition(SwingConstants.TOP); // Text über dem Symbol
+		// 🔹 ALLES ZUSAMMENSETZEN
+		frame.add(buttonPanel, BorderLayout.CENTER);
+		frame.add(footerLabel, BorderLayout.SOUTH); // Fußzeile am unteren Rand
 
-        return button;
-    }
+		frame.setVisible(true);
+	}
 
-    private void drawOutlinedQuader(Graphics2D g2d, int centerX, int centerY) {
-        int w = 40, h = 30, depth = 20;
+	private JButton createButton(String label, Color borderColor, Color fillColor) {
+		JButton button = new JButton() {
+			@Override
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				Graphics2D g2d = (Graphics2D) g;
+				g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Vorderseite (rechteck)
-        g2d.drawRect(centerX - w / 2, centerY, w, h);
+				int width = getWidth();
+				int height = getHeight();
+				int centerX = width / 2;
+				int centerY = height / 2 - 20;
 
-        // Oberseite
-        int[] xTop = {centerX - w / 2, centerX + w / 2, centerX + w / 2 + depth, centerX - w / 2 + depth};
-        int[] yTop = {centerY, centerY, centerY - depth, centerY - depth};
-        g2d.drawPolygon(xTop, yTop, 4);
+				g2d.setColor(fillColor);
+				g2d.fillRoundRect(5, 5, width - 10, height - 10, 20, 20);
+				g2d.setColor(borderColor);
+				g2d.setStroke(new BasicStroke(3));
+				g2d.drawRoundRect(5, 5, width - 10, height - 10, 20, 20);
 
-        // Seite
-        int[] xSide = {centerX + w / 2, centerX + w / 2 + depth, centerX + w / 2 + depth, centerX + w / 2};
-        int[] ySide = {centerY, centerY - depth, centerY + h - depth, centerY + h};
-        g2d.drawPolygon(xSide, ySide, 4);
-    }
+				if (label.contains("Rechtwinklig")) {
+					drawRightTriangle(g2d, centerX, centerY);
+				} else if (label.contains("Gleichschenklig")) {
+					drawIsoscelesTriangle(g2d, centerX, centerY);
+				} else if (label.contains("Allgemeines")) {
+					drawScaleneTriangle(g2d, centerX, centerY);
+				}
+			}
+		};
+
+		button.setOpaque(false);
+		button.setContentAreaFilled(false);
+		button.setBorderPainted(false);
+		button.setFocusPainted(false);
+		button.setLayout(new BorderLayout());
+
+		JLabel textLabel = new JLabel(label, SwingConstants.CENTER);
+		textLabel.setFont(new Font("Arial", Font.BOLD, 14));
+		button.add(textLabel, BorderLayout.SOUTH);
+
+		return button;
+	}
+
+	private void drawRightTriangle(Graphics2D g2d, int centerX, int centerY) {
+		int[] xPoints = { centerX - 20, centerX + 20, centerX - 20 };
+		int[] yPoints = { centerY + 20, centerY + 20, centerY };
+		g2d.drawPolygon(xPoints, yPoints, 3);
+	}
+
+	private void drawIsoscelesTriangle(Graphics2D g2d, int centerX, int centerY) {
+		int[] xPoints = { centerX - 20, centerX + 20, centerX };
+		int[] yPoints = { centerY + 20, centerY + 20, centerY - 20 };
+		g2d.drawPolygon(xPoints, yPoints, 3);
+	}
+
+	private void drawScaleneTriangle(Graphics2D g2d, int centerX, int centerY) {
+		int[] xPoints = { centerX - 20, centerX + 10, centerX + 20 };
+		int[] yPoints = { centerY + 20, centerY, centerY + 20 };
+		g2d.drawPolygon(xPoints, yPoints, 3);
+	}
 }
