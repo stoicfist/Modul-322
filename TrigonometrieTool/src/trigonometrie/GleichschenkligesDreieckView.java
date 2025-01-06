@@ -2,57 +2,153 @@ package trigonometrie;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class GleichschenkligesDreieckView {
     private JFrame frame;
-    private JTextField seiteAField, basisField;
-    private JLabel resultLabel;
+    private JTextField basisField, seiteField, hoeheField, winkelAlphaField, winkelBetaField;
 
     public GleichschenkligesDreieckView() {
         frame = new JFrame("Gleichschenkliges Dreieck");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(400, 300);
-        frame.setLayout(new GridLayout(4, 2));
+        frame.setSize(500, 350);
+        frame.setLayout(new GridBagLayout());
 
-        frame.add(new JLabel("Gleiche Seitenlänge a:"));
-        seiteAField = new JTextField();
-        frame.add(seiteAField);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
 
-        frame.add(new JLabel("Basislänge b:"));
-        basisField = new JTextField();
-        frame.add(basisField);
+        // 🔹 HEADER
+        JLabel header = new JLabel("Gleichschenkliges Dreieck Berechnung", SwingConstants.CENTER);
+        header.setFont(new Font("Arial", Font.BOLD, 14));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        frame.add(header, gbc);
 
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+
+        // 🔹 Eingabefelder
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        frame.add(new JLabel("Basis (b):"), gbc);
+        gbc.gridx = 1;
+        basisField = new JTextField(10);
+        frame.add(basisField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        frame.add(new JLabel("Seitenlänge (a):"), gbc);
+        gbc.gridx = 1;
+        seiteField = new JTextField(10);
+        frame.add(seiteField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        frame.add(new JLabel("Höhe (h):"), gbc);
+        gbc.gridx = 1;
+        hoeheField = new JTextField(10);
+        frame.add(hoeheField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        frame.add(new JLabel("Winkel α (°):"), gbc);
+        gbc.gridx = 1;
+        winkelAlphaField = new JTextField(10);
+        frame.add(winkelAlphaField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        frame.add(new JLabel("Winkel β (°):"), gbc);
+        gbc.gridx = 1;
+        winkelBetaField = new JTextField(10);
+        frame.add(winkelBetaField, gbc);
+
+        // 🔹 Button-Panel
+        JPanel buttonPanel = new JPanel();
         JButton calculateButton = new JButton("Berechnen");
-        frame.add(calculateButton);
+        JButton backButton = new JButton("Zurück");
+        backButton.addActionListener(e -> frame.dispose());
+        buttonPanel.add(calculateButton);
+        buttonPanel.add(backButton);
 
-        resultLabel = new JLabel(" ");
-        frame.add(resultLabel);
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        frame.add(buttonPanel, gbc);
 
-        calculateButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    double a = Double.parseDouble(seiteAField.getText());
-                    double b = Double.parseDouble(basisField.getText());
+        // 🔹 Fußzeile
+        JLabel footer = new JLabel("Gib mindestens 2 Werte ein (z. B. 2 Seiten oder 1 Seite & 1 Winkel).", SwingConstants.CENTER);
+        gbc.gridx = 0;
+        gbc.gridy = 7;
+        gbc.gridwidth = 2;
+        frame.add(footer, gbc);
 
-                    if (b >= 2 * a) {
-                        resultLabel.setText("Ungültige Werte!");
-                        return;
-                    }
+        // 🔹 Berechnungslogik mit Mindestprüfung
+        calculateButton.addActionListener(e -> {
+            try {
+                Double b = getValue(basisField);
+                Double a = getValue(seiteField);
+                Double h = getValue(hoeheField);
+                Double alpha = getValue(winkelAlphaField);
+                Double beta = getValue(winkelBetaField);
 
-                    double h = Math.sqrt(a * a - (b / 2) * (b / 2)); // Höhe mit Pythagoras
-                    double winkel = Math.toDegrees(Math.acos((b / 2) / a)); // Basiswinkel mit Kosinus
+                // 🔹 Prüfe Mindestanzahl der Eingaben
+                int anzahlEingaben = 0;
+                if (b != null) anzahlEingaben++;
+                if (a != null) anzahlEingaben++;
+                if (h != null) anzahlEingaben++;
+                if (alpha != null) anzahlEingaben++;
+                if (beta != null) anzahlEingaben++;
 
-                    new ErgebnisFenster("Höhe h: " + h + "\nBasiswinkel: " + winkel + "°");
-
-                } catch (NumberFormatException ex) {
-                    resultLabel.setText("Bitte gültige Zahlen eingeben.");
+                if (anzahlEingaben < 2) {
+                    JOptionPane.showMessageDialog(frame, "Bitte gib mindestens 2 Werte ein!\n"
+                            + "Erlaubt: 2 Seiten oder 1 Seite & 1 Winkel.", "Fehler", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
+
+                // 🔹 Automatische Berechnung der fehlenden Werte
+                if (a != null && h == null) {
+                    h = Math.sqrt(a * a - (b / 2) * (b / 2));
+                }
+                if (h != null && a == null) {
+                    a = Math.sqrt(h * h + (b / 2) * (b / 2));
+                }
+
+                if (b != null && h != null) {
+                    alpha = Math.toDegrees(Math.atan(h / (b / 2)));
+                    beta = 180 - (2 * alpha);
+                }
+
+                if (b == null || a == null || h == null || alpha == null || beta == null) {
+                    JOptionPane.showMessageDialog(frame, "Zu wenig Informationen!", "Fehler", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                new ErgebnisFenster("Gleichschenkliges Dreieck\n\n"
+                        + "Basis (b): " + round(b) + "\n"
+                        + "Seitenlänge (a): " + round(a) + "\n"
+                        + "Höhe (h): " + round(h) + "\n"
+                        + "Winkel α: " + round(alpha) + "°\n"
+                        + "Winkel β: " + round(beta) + "°");
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "Bitte gültige Zahlen eingeben!", "Fehler", JOptionPane.ERROR_MESSAGE);
             }
         });
 
         frame.setVisible(true);
     }
+
+    // 🔹 Hilfsmethode, um Werte aus Textfeldern zu holen
+    private Double getValue(JTextField field) {
+        String text = field.getText();
+        return text.isEmpty() ? null : Double.parseDouble(text);
+    }
+
+    // 🔹 Werte auf 2 Nachkommastellen runden
+    private String round(double value) {
+        return String.format("%.2f", value);
+    }
 }
+

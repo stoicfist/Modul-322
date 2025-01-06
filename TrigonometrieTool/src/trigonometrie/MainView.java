@@ -12,11 +12,6 @@ public class MainView {
 		frame.setSize(600, 450); // Etwas größere Höhe für Fußzeile
 		frame.setLayout(new BorderLayout());
 
-		// 🔹 ICON OBEN LINKS HINZUFÜGEN
-		ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("trigonometrie/icon.png"));
-		frame.setIconImage(icon.getImage());
-
-
 		// 🔹 BUTTON PANEL (mit den 3 Buttons)
 		JPanel buttonPanel = new JPanel(new GridLayout(1, 3));
 
