@@ -107,21 +107,33 @@ public class GleichschenkligesDreieckView {
                     return;
                 }
 
-                // 🔹 Automatische Berechnung der fehlenden Werte
-                if (a != null && h == null) {
-                    h = Math.sqrt(a * a - (b / 2) * (b / 2));
-                }
-                if (h != null && a == null) {
+                // 🔹 Berechnung mit Basis und Winkel β
+                if (b != null && beta != null) {
+                    alpha = 90 - beta; // Ergänzungswinkel
+                    h = (b / 2) * Math.tan(Math.toRadians(alpha));
                     a = Math.sqrt(h * h + (b / 2) * (b / 2));
                 }
 
-                if (b != null && h != null) {
-                    alpha = Math.toDegrees(Math.atan(h / (b / 2)));
-                    beta = 180 - (2 * alpha);
+                // 🔹 Berechnung mit Seitenlänge `a` und Winkel `α`
+                if (a != null && alpha != null) {
+                    beta = 180 - (2 * alpha); // Ergänzungswinkel
+                    b = 2 * (a * Math.cos(Math.toRadians(alpha))); // Basis berechnen
+                    h = a * Math.sin(Math.toRadians(alpha)); // Höhe berechnen
                 }
 
+                // 🔹 Berechnung mit Basis und Höhe
+                if (b != null && h != null && a == null) {
+                    a = Math.sqrt(h * h + (b / 2) * (b / 2)); // Seitenlänge über Pythagoras
+                }
+
+                // 🔹 Berechnung der Höhe über Seitenlänge
+                if (a != null && h == null) {
+                    h = Math.sqrt(a * a - (b / 2) * (b / 2)); // Höhe über Pythagoras
+                }
+
+                // 🔹 Überprüfen, ob alles berechnet wurde
                 if (b == null || a == null || h == null || alpha == null || beta == null) {
-                    JOptionPane.showMessageDialog(frame, "Zu wenig Informationen!", "Fehler", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(frame, "Berechnung unvollständig! Bitte überprüfe die Eingaben.", "Fehler", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -151,4 +163,3 @@ public class GleichschenkligesDreieckView {
         return String.format("%.2f", value);
     }
 }
-
